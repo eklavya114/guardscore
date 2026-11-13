@@ -21,7 +21,6 @@ reconstructed = true
 [source]
 urls = [
   "https://cybersecuritynews.com/ai-coding-agent-deletes-data/amp/",
-  "https://www.techspot.com/news/112207-ai-coding-agent-running-claude-wiped-startup-database.html",
 ]
 date = "2026-04"
 reliability = "reported"
