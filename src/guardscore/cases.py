@@ -19,7 +19,13 @@ ALLOWED_RELIABILITY = {"primary", "reported", "secondhand"}
 _SECRET_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
     re.compile(r"\bAKIA[A-Z0-9]{16}\b"),
+    re.compile(r"\bghp_[A-Za-z0-9]{36}\b"),
+    re.compile(r"\bxox[baprs]-[A-Za-z0-9\-]{10,}"),
 ]
+
+
+def looks_like_secret(text: str) -> bool:
+    return any(p.search(text) for p in _SECRET_PATTERNS)
 
 
 @dataclass
@@ -179,9 +185,7 @@ def validate_cases(cases: list[Case]) -> list[str]:
             if "everyday" not in case.tags:
                 errors.append(f"{prefix} everyday cases must include the tag 'everyday'")
 
-        for pattern in _SECRET_PATTERNS:
-            if pattern.search(case.action.text):
-                errors.append(f"{prefix} 'action.text' appears to contain a real secret")
-                break
+        if looks_like_secret(case.action.text):
+            errors.append(f"{prefix} 'action.text' appears to contain a real secret")
 
     return errors
