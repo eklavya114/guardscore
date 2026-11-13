@@ -40,6 +40,33 @@ docs/              Documentation
 tests/             Test suite
 ```
 
+## What is in the case library
+
+```
+Total cases: 14
+
+By kind:
+  everyday: 8
+  incident: 6
+
+By expected verdict:
+  allow: 8
+  hold: 6
+
+By tag:
+  everyday: 8
+  destructive: 6
+  filesystem: 5
+  git: 5
+  prompt-injection: 1
+  cloud-cli: 1
+  cloud-api: 1
+  credentials: 1
+  database: 1
+```
+
+Run `python -m guardscore stats` to see the current numbers.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add an incident case.
