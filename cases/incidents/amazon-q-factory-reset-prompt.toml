@@ -18,5 +18,5 @@ urls = [
   "https://www.theregister.com/2025/07/24/amazon_q_ai_prompt/",
   "https://aws.amazon.com/security/security-bulletins/AWS-2025-015/",
 ]
-date = "2025-07-19"
+date = "2025-07"
 reliability = "reported"
