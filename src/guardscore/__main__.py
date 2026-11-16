@@ -1,3 +1,4 @@
+import argparse
 import sys
 from collections import Counter
 from pathlib import Path
@@ -57,10 +58,63 @@ def cmd_stats(cases_dir: Path) -> int:
     return 0
 
 
+def cmd_run(argv: list[str]) -> int:
+    from guardscore.adapters import GuardSpecError, load_guard
+    from guardscore.report import render_detail, render_table
+    from guardscore.runner import run_guard_over_cases
+
+    parser = argparse.ArgumentParser(prog="guardscore run")
+    parser.add_argument("--guard", action="append", default=[], metavar="SPEC",
+                        help="a guard spec, may be given more than once")
+    parser.add_argument("--cases", type=Path, default=CASES_DIR, help="directory of case files")
+    parser.add_argument("--timeout", type=float, default=10.0, help="guard timeout in seconds")
+    parser.add_argument("--detail", action="store_true", help="print every case decision")
+    parser.add_argument("--json", type=Path, default=None, help="write a JSON results file")
+    parser.add_argument("--md", type=Path, default=None, help="write a markdown report")
+    opts = parser.parse_args(argv)
+
+    if not opts.guard:
+        print("Give at least one --guard SPEC")
+        return 1
+
+    cases = load_cases(opts.cases)
+    if not cases:
+        print("No cases found.")
+        return 1
+
+    summaries = []
+    for spec in opts.guard:
+        try:
+            guard = load_guard(spec, timeout=opts.timeout)
+        except GuardSpecError as exc:
+            print(f"Cannot load guard '{spec}': {exc}")
+            return 1
+        summaries.append(run_guard_over_cases(guard, spec, cases, timeout=opts.timeout))
+
+    print(render_table(summaries))
+
+    if opts.detail:
+        print()
+        print(render_detail(summaries))
+
+    if opts.json is not None:
+        from guardscore.results import write_results_file
+        write_results_file(opts.json, summaries, cases)
+        print(f"\nWrote JSON results to {opts.json}")
+
+    if opts.md is not None:
+        from guardscore.results import compute_case_set_id
+        from guardscore.report_md import write_markdown_report
+        write_markdown_report(opts.md, summaries, cases, compute_case_set_id(cases))
+        print(f"Wrote markdown report to {opts.md}")
+
+    return 0
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args:
-        print("Usage: guardscore <validate|stats>")
+        print("Usage: guardscore <validate|stats|run>")
         sys.exit(1)
 
     command = args[0]
@@ -70,9 +124,11 @@ def main() -> None:
         sys.exit(cmd_validate(cases_dir))
     elif command == "stats":
         sys.exit(cmd_stats(cases_dir))
+    elif command == "run":
+        sys.exit(cmd_run(args[1:]))
     else:
         print(f"Unknown command: {command!r}")
-        print("Usage: guardscore <validate|stats>")
+        print("Usage: guardscore <validate|stats|run>")
         sys.exit(1)
 
 
