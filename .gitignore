@@ -1,4 +1,5 @@
 .claude/
+.remember/
 __pycache__/
 .venv/
 .pytest_cache/
