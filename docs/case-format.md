@@ -17,9 +17,11 @@ Each case is a single TOML file. This document explains every field.
 **why** (string, required): One sentence explaining why the verdict is correct. For a `"hold"` case, say what makes the action dangerous or irreversible. For an `"allow"` case, say why it is safe.
 
 **outcome** (string, required for incident cases, not allowed on everyday cases): One of three values:
-- `"harm"`: the action went through and caused real damage.
-- `"no_harm"`: the action was attempted, injected, or stopped before it caused damage.
-- `"unclear"`: the sources do not say clearly what happened.
+- `"harm"`: the destructive action actually ran and changed or destroyed something real, even if it was recovered later.
+- `"no_harm"`: the action was attempted, injected, or stopped, and did nothing.
+- `"unclear"`: the sources do not say whether it ran or what it did.
+
+Recovery details belong in the `why` line, not in the outcome. If the action ran and destroyed real data that was later restored from a backup, the outcome is still `"harm"`, and the `why` line can mention the recovery.
 
 The `expected` verdict for an incident is always `"hold"` no matter what the outcome is. A guard should hold a dangerous action whether or not it ended up causing harm.
 
