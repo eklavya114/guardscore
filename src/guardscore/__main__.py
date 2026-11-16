@@ -32,6 +32,7 @@ def cmd_stats(cases_dir: Path) -> int:
 
     kind_counts = Counter(c.kind for c in cases)
     verdict_counts = Counter(c.expected for c in cases)
+    outcome_counts = Counter(c.outcome for c in cases if c.outcome is not None)
     tag_counts: Counter = Counter()
     for c in cases:
         tag_counts.update(c.tags)
@@ -45,6 +46,10 @@ def cmd_stats(cases_dir: Path) -> int:
     print("By expected verdict:")
     for verdict, count in sorted(verdict_counts.items()):
         print(f"  {verdict}: {count}")
+    print()
+    print("By outcome:")
+    for outcome, count in sorted(outcome_counts.items()):
+        print(f"  {outcome}: {count}")
     print()
     print("By tag:")
     for tag, count in tag_counts.most_common():

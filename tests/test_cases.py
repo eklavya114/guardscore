@@ -33,6 +33,7 @@ def make_valid_incident(**overrides) -> Case:
             date="2025-01",
             reliability="reported",
         ),
+        outcome="harm",
         path=Path("test-incident.toml"),
     )
     defaults.update(overrides)
@@ -215,6 +216,40 @@ class TestSecretDetection:
         case = make_valid_incident(action=Action(tool="bash", text=f"curl -H 'Authorization: Bearer {secret}'", reconstructed=True))
         errors = validate_cases([case])
         assert any("secret" in e for e in errors)
+
+
+class TestValidationOutcome:
+    def test_incident_missing_outcome(self):
+        case = make_valid_incident(outcome=None)
+        errors = validate_cases([case])
+        assert any("outcome" in e for e in errors)
+
+    def test_incident_bad_outcome(self):
+        case = make_valid_incident(outcome="catastrophic")
+        errors = validate_cases([case])
+        assert any("outcome" in e for e in errors)
+
+    def test_incident_valid_outcomes_accepted(self):
+        for outcome in ("harm", "no_harm", "unclear"):
+            case = make_valid_incident(outcome=outcome)
+            errors = validate_cases([case])
+            assert not any("outcome" in e for e in errors)
+
+    def test_everyday_must_not_set_outcome(self):
+        case = make_valid_everyday(outcome="harm")
+        errors = validate_cases([case])
+        assert any("outcome" in e for e in errors)
+
+    def test_everyday_without_outcome_is_fine(self):
+        case = make_valid_everyday()
+        errors = validate_cases([case])
+        assert not any("outcome" in e for e in errors)
+
+    def test_incident_hold_regardless_of_outcome(self):
+        for outcome in ("harm", "no_harm", "unclear"):
+            case = make_valid_incident(outcome=outcome, expected="hold")
+            errors = validate_cases([case])
+            assert not any("hold" in e for e in errors)
 
 
 class TestActionTool:

@@ -15,6 +15,7 @@ ALLOWED_TAGS = {
     "credentials", "prompt-injection", "network", "destructive", "everyday",
 }
 ALLOWED_RELIABILITY = {"primary", "reported", "secondhand"}
+ALLOWED_OUTCOMES = {"harm", "no_harm", "unclear"}
 
 _SECRET_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
@@ -53,6 +54,7 @@ class Case:
     task: str
     action: Action
     source: Optional[Source] = None
+    outcome: Optional[str] = None
     path: Optional[Path] = None
 
 
@@ -86,6 +88,7 @@ def _load_one(path: Path) -> Case:
         task=data.get("context", {}).get("task", ""),
         action=action,
         source=source,
+        outcome=data.get("outcome"),
         path=path,
     )
 
@@ -156,6 +159,11 @@ def validate_cases(cases: list[Case]) -> list[str]:
             if case.action.reconstructed is None:
                 errors.append(f"{prefix} incident cases must set 'action.reconstructed'")
 
+            if case.outcome is None:
+                errors.append(f"{prefix} incident cases must set 'outcome'")
+            elif case.outcome not in ALLOWED_OUTCOMES:
+                errors.append(f"{prefix} 'outcome' must be one of {sorted(ALLOWED_OUTCOMES)}, got '{case.outcome}'")
+
             if case.source is None:
                 errors.append(f"{prefix} incident cases must have a [source] section")
             else:
@@ -184,6 +192,8 @@ def validate_cases(cases: list[Case]) -> list[str]:
                 errors.append(f"{prefix} everyday cases must have expected = 'allow'")
             if "everyday" not in case.tags:
                 errors.append(f"{prefix} everyday cases must include the tag 'everyday'")
+            if case.outcome is not None:
+                errors.append(f"{prefix} everyday cases must not set 'outcome'")
 
         if looks_like_secret(case.action.text):
             errors.append(f"{prefix} 'action.text' appears to contain a real secret")
