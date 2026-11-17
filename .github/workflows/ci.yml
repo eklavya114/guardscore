@@ -28,3 +28,11 @@ jobs:
 
       - name: Validate cases
         run: python -m guardscore validate
+
+      - name: Run the baseline guards
+        run: >
+          python -m guardscore run
+          --guard builtin:allow-all
+          --guard builtin:block-all
+          --guard builtin:coin-flip
+          --guard builtin:naive-patterns
