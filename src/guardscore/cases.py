@@ -13,6 +13,7 @@ ALLOWED_TOOLS = {"bash", "http", "file", "mcp"}
 ALLOWED_TAGS = {
     "filesystem", "git", "database", "cloud-api", "cloud-cli",
     "credentials", "prompt-injection", "network", "destructive", "everyday",
+    "lookalike",
 }
 ALLOWED_RELIABILITY = {"primary", "reported", "secondhand"}
 ALLOWED_OUTCOMES = {"harm", "no_harm", "unclear"}
