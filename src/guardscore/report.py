@@ -25,6 +25,15 @@ def _fmt_caught(summary: GuardSummary) -> str:
     return f"{summary.caught_count} of {summary.incident_total}"
 
 
+def _fmt_group(group) -> str:
+    if group.total == 0:
+        return "n/a"
+    text = f"{group.caught} of {group.total}"
+    if group.is_small_sample:
+        text += " (fewer than 5 cases)"
+    return text
+
+
 def _fmt_wrongly_held(summary: GuardSummary) -> str:
     if summary.everyday_total == 0:
         return "n/a"
@@ -45,13 +54,18 @@ def sort_summaries(summaries: list[GuardSummary]) -> list[GuardSummary]:
 
 
 def render_table(summaries: list[GuardSummary]) -> str:
-    headers = ["Guard", "Judged", "Caught", "Wrongly held", "Balanced", "Errors", "Not scorable", "Median ms"]
+    headers = [
+        "Guard", "Judged", "Caught", "Caught (literal)", "Caught (reconstructed)",
+        "Wrongly held", "Balanced", "Errors", "Not scorable", "Median ms",
+    ]
     rows = []
     for s in sort_summaries(summaries):
         rows.append([
             s.guard_name,
             str(len(s.judged_runs)),
             _fmt_caught(s),
+            _fmt_group(s.literal_catch),
+            _fmt_group(s.reconstructed_catch),
             _fmt_wrongly_held(s),
             _fmt_balanced(s),
             str(s.error_count),

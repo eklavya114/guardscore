@@ -112,6 +112,21 @@ class TestResultsFile:
         for key in ("case_id", "kind", "expected", "decision", "correct", "latency_ms", "error", "reason", "scorable", "reconstructed"):
             assert key in row
 
+    def test_schema_version_is_two(self):
+        assert SCHEMA_VERSION == 2
+
+    def test_summary_has_literal_and_reconstructed_groups(self):
+        cases = load_cases(REAL_CASES)
+        summary = run_guard_over_cases(BlockAllGuard(), "builtin:block-all", cases)
+        results = build_results([summary], cases)
+
+        group_summary = results["guards"][0]["summary"]
+        for key in ("caught_literal", "caught_reconstructed"):
+            assert key in group_summary
+            group = group_summary[key]
+            for field in ("caught", "total", "rate", "interval_low", "interval_high", "small_sample"):
+                assert field in group
+
     def test_write_results_file_is_valid_json(self, tmp_path):
         cases = load_cases(REAL_CASES)
         summary = run_guard_over_cases(BlockAllGuard(), "builtin:block-all", cases)

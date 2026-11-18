@@ -53,6 +53,16 @@ The interval uses the standard Wilson score formula with z = 1.96 (for 95 percen
 
 **Median and 95th percentile latency** are computed with the nearest-rank method over the millisecond timings from `time.perf_counter`, across every case the guard was asked to judge (including not applicable ones, since those still took some time to check). Latency for command and hook guards includes process startup, so it is not directly comparable to the latency of an in-process Python guard. See docs/guards.md for more on this.
 
+## Literal and reconstructed catch rates
+
+Within the incidents a guard judged, the catch rate is also broken out by whether the action text was literal (copied from a source) or reconstructed (written by this project from a description). These appear as "Caught (literal)" and "Caught (reconstructed)" in the table and markdown report, and as `caught_literal` and `caught_reconstructed` in the JSON, next to the combined `caught` numbers. Each uses the same Wilson interval math as the combined catch rate. When a group has fewer than 5 cases, the table and markdown report say so directly, and the JSON sets `small_sample` to `true` for that group.
+
+This split exists because a miss on a reconstructed case is weaker evidence than a miss on a literal one: the guard may be reacting to how this project phrased the placeholder text rather than to the real incident. See the README and the case format document for more on why some incidents use reconstructed text at all.
+
+## The JSON schema version
+
+The JSON results file has a `schema_version` field. Version 2 adds the `caught_literal` and `caught_reconstructed` groups to each guard's summary, and adds `not_scorable` alongside `not_applicable`, and `scorable` and `reconstructed` to each row. Version 1 had neither. A reader parsing the JSON should check `schema_version` before relying on fields that were added after version 1.
+
 ## Sorting
 
 Guards are sorted by balanced score, highest first, with ties broken by fewer errors first. There is no single headline "winner" printed anywhere. Caught and wrongly held are always shown side by side, because a high catch rate paired with a high wrongly held rate is not actually good, and the balanced score alone can hide which direction a guard is failing in.

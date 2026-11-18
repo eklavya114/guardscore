@@ -17,7 +17,26 @@ from typing import Optional
 
 from guardscore.cases import Case
 from guardscore.guard import Guard, GuardResult, build_request
-from guardscore.scoring import balanced_score, median_latency, p95_latency, rate, wilson_interval
+from guardscore.scoring import WilsonInterval, balanced_score, median_latency, p95_latency, rate, wilson_interval
+
+
+SMALL_SAMPLE_THRESHOLD = 5
+
+
+@dataclass
+class CatchGroup:
+    """Catch count, rate, and interval for one subset of incidents
+    (for example, only the literal ones or only the reconstructed
+    ones)."""
+
+    caught: int
+    total: int
+    rate: Optional[float]
+    interval: Optional[WilsonInterval]
+
+    @property
+    def is_small_sample(self) -> bool:
+        return self.total < SMALL_SAMPLE_THRESHOLD
 
 
 @dataclass
@@ -120,6 +139,32 @@ class GuardSummary:
     @property
     def wrongly_held_interval(self):
         return wilson_interval(self.wrongly_held_count, self.everyday_total)
+
+    @property
+    def literal_incident_runs(self) -> list[CaseRun]:
+        return [r for r in self.incident_runs if r.reconstructed is False]
+
+    @property
+    def reconstructed_incident_runs(self) -> list[CaseRun]:
+        return [r for r in self.incident_runs if r.reconstructed is True]
+
+    def _group_catch(self, runs: list[CaseRun]) -> "CatchGroup":
+        total = len(runs)
+        caught = sum(1 for r in runs if r.held)
+        return CatchGroup(
+            caught=caught,
+            total=total,
+            rate=rate(caught, total),
+            interval=wilson_interval(caught, total),
+        )
+
+    @property
+    def literal_catch(self) -> "CatchGroup":
+        return self._group_catch(self.literal_incident_runs)
+
+    @property
+    def reconstructed_catch(self) -> "CatchGroup":
+        return self._group_catch(self.reconstructed_incident_runs)
 
     @property
     def latencies_ms(self) -> list[float]:

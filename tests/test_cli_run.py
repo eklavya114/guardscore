@@ -47,7 +47,10 @@ class TestTableRendering:
         cases = __import__("guardscore.cases", fromlist=["load_cases"]).load_cases(REAL_CASES)
         summary = run_guard_over_cases(BlockAllGuard(), "builtin:block-all", cases)
         table = render_table([summary])
-        for header in ("Guard", "Judged", "Caught", "Wrongly held", "Balanced", "Errors", "Not scorable", "Median ms"):
+        for header in (
+            "Guard", "Judged", "Caught", "Caught (literal)", "Caught (reconstructed)",
+            "Wrongly held", "Balanced", "Errors", "Not scorable", "Median ms",
+        ):
             assert header in table
 
     def test_sort_by_balanced_then_errors(self):
