@@ -30,6 +30,12 @@ class TestMarkdownReport:
         assert "| Guard |" in md
         assert "| Case |" in md
 
+    def test_table_shows_literal_and_reconstructed_columns(self):
+        summaries, cases = build_summaries()
+        md = build_markdown_report(summaries, cases, compute_case_set_id(cases))
+        assert "Caught (literal)" in md
+        assert "Caught (reconstructed)" in md
+
     def test_grid_has_one_row_per_case(self):
         summaries, cases = build_summaries()
         md = build_markdown_report(summaries, cases, compute_case_set_id(cases))

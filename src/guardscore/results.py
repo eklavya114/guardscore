@@ -21,7 +21,7 @@ from guardscore import __version__
 from guardscore.cases import Case
 from guardscore.runner import GuardSummary
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def compute_case_set_id(cases: list[Case], cases_dir: Optional[Path] = None) -> str:
@@ -74,6 +74,18 @@ def _common_parent(paths: list[Path]) -> Optional[Path]:
     return parent
 
 
+def _group_to_dict(group) -> dict:
+    interval = group.interval
+    return {
+        "caught": group.caught,
+        "total": group.total,
+        "rate": group.rate,
+        "interval_low": interval.low if interval else None,
+        "interval_high": interval.high if interval else None,
+        "small_sample": group.is_small_sample,
+    }
+
+
 def _summary_to_dict(summary: GuardSummary) -> dict:
     return {
         "spec": summary.guard_spec,
@@ -85,6 +97,8 @@ def _summary_to_dict(summary: GuardSummary) -> dict:
             "caught_blocked": summary.caught_blocked,
             "caught_asked": summary.caught_asked,
             "caught_allowed": summary.caught_allowed,
+            "caught_literal": _group_to_dict(summary.literal_catch),
+            "caught_reconstructed": _group_to_dict(summary.reconstructed_catch),
             "wrongly_held": summary.wrongly_held_count,
             "everyday_total": summary.everyday_total,
             "catch_rate": summary.catch_rate,

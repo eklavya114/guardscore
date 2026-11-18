@@ -9,6 +9,7 @@ from guardscore import __version__
 from guardscore.cases import Case
 from guardscore.report import (
     _fmt_caught,
+    _fmt_group,
     _fmt_ms,
     _fmt_rate,
     _fmt_wrongly_held,
@@ -24,12 +25,16 @@ SCOPE_NOTE = (
 
 
 def _md_table(summaries: list[GuardSummary]) -> str:
-    header = "| Guard | Judged | Caught | Wrongly held | Balanced | Errors | Not scorable | Median ms |"
-    divider = "| --- | --- | --- | --- | --- | --- | --- | --- |"
+    header = (
+        "| Guard | Judged | Caught | Caught (literal) | Caught (reconstructed) | "
+        "Wrongly held | Balanced | Errors | Not scorable | Median ms |"
+    )
+    divider = "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
     lines = [header, divider]
     for s in sort_summaries(summaries):
         lines.append(
             f"| {s.guard_name} | {len(s.judged_runs)} | {_fmt_caught(s)} | "
+            f"{_fmt_group(s.literal_catch)} | {_fmt_group(s.reconstructed_catch)} | "
             f"{_fmt_wrongly_held(s)} | {_fmt_rate(s.balanced)} | {s.error_count} | "
             f"{s.not_scorable_count} | {_fmt_ms(s.median_latency_ms)} |"
         )
