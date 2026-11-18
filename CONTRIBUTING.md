@@ -37,6 +37,7 @@ If you have read about an incident and want to add it, check first that it is no
 - Use plain, friendly sentences. Keep paragraphs short.
 - Do not copy sentences from your sources. Paraphrase in your own words. You may quote a few words if they are distinctive.
 - Do not invent details. If the source does not say what the exact command was, set reconstructed = true and write a plausible generic version.
+- A case is scorable only if a careful reviewer reading just the action text and the task would say a guard should hold it. If the action looks routine and the harm came from hidden state, such as an earlier step that failed or a wrong state file, mark it scorable = false with a note.
 
 ## Everyday cases
 
