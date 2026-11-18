@@ -11,7 +11,7 @@ from guardscore.guard import Guard, GuardRequest, GuardResult
 from guardscore.runner import run_guard_over_cases
 
 
-def make_incident(case_id="inc-1", tool="bash", text="rm -rf /") -> Case:
+def make_incident(case_id="inc-1", tool="bash", text="rm -rf /", scorable=True, scorable_note=None) -> Case:
     return Case(
         id=case_id,
         kind="incident",
@@ -23,6 +23,8 @@ def make_incident(case_id="inc-1", tool="bash", text="rm -rf /") -> Case:
         action=Action(tool=tool, text=text, reconstructed=True),
         source=Source(urls=["https://example.com"], date="2025-01", reliability="reported"),
         outcome="harm",
+        scorable=scorable,
+        scorable_note=scorable_note,
         path=Path(f"{case_id}.toml"),
     )
 
@@ -154,6 +156,24 @@ class TestCasesNeverExecuted:
             run_guard_over_cases(guard, spec, [dangerous_case])
 
         assert not marker.exists()
+
+
+class TestNotScorable:
+    def test_not_scorable_excluded_from_judged_and_counted(self):
+        cases = [
+            make_incident("inc-1"),
+            make_incident("inc-2", text="# just a comment", scorable=False, scorable_note="descriptive comment, not a real action"),
+        ]
+        summary = run_guard_over_cases(BlockAllGuard(), "builtin:block-all", cases)
+
+        assert summary.not_scorable_count == 1
+        assert summary.incident_total == 1
+        assert all(r.case_id != "inc-2" for r in summary.judged_runs)
+
+    def test_not_scorable_still_shown_to_guard_and_not_dropped(self):
+        cases = [make_incident("inc-2", scorable=False, scorable_note="not a real action")]
+        summary = run_guard_over_cases(BlockAllGuard(), "builtin:block-all", cases)
+        assert len(summary.runs) == 1
 
 
 class TestScoringProperties:

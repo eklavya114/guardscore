@@ -252,6 +252,34 @@ class TestValidationOutcome:
             assert not any("hold" in e for e in errors)
 
 
+class TestScorable:
+    def test_default_is_scorable(self):
+        case = make_valid_incident()
+        assert case.scorable is True
+        errors = validate_cases([case])
+        assert not any("scorable" in e for e in errors)
+
+    def test_not_scorable_requires_note(self):
+        case = make_valid_incident(scorable=False, scorable_note=None)
+        errors = validate_cases([case])
+        assert any("scorable_note" in e for e in errors)
+
+    def test_not_scorable_with_note_is_valid(self):
+        case = make_valid_incident(scorable=False, scorable_note="This is a descriptive comment, not a command.")
+        errors = validate_cases([case])
+        assert not any("scorable" in e for e in errors)
+
+    def test_scorable_note_not_allowed_when_scorable_true(self):
+        case = make_valid_incident(scorable=True, scorable_note="should not be here")
+        errors = validate_cases([case])
+        assert any("scorable_note" in e for e in errors)
+
+    def test_scorable_must_be_bool(self):
+        case = make_valid_incident(scorable="yes")
+        errors = validate_cases([case])
+        assert any("scorable" in e for e in errors)
+
+
 class TestActionTool:
     def test_invalid_tool(self):
         case = make_valid_incident(action=Action(tool="curl", text="curl https://example.com", reconstructed=True))

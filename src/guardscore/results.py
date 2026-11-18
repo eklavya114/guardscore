@@ -92,6 +92,7 @@ def _summary_to_dict(summary: GuardSummary) -> dict:
             "balanced_score": summary.balanced,
             "errors": summary.error_count,
             "not_applicable": summary.not_applicable_count,
+            "not_scorable": summary.not_scorable_count,
             "median_latency_ms": summary.median_latency_ms,
             "p95_latency_ms": summary.p95_latency_ms,
         },
@@ -105,6 +106,8 @@ def _summary_to_dict(summary: GuardSummary) -> dict:
                 "latency_ms": r.latency_ms,
                 "error": r.error,
                 "reason": r.reason,
+                "scorable": r.scorable,
+                "reconstructed": r.reconstructed,
             }
             for r in summary.runs
         ],
