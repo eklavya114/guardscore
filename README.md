@@ -91,7 +91,9 @@ These are the four built-in baselines, run over all 14 cases. Latency is left ou
 | builtin:allow-all | 14 | 0 of 6 | 0 of 8 | 50% | 0 |
 | builtin:block-all | 14 | 6 of 6 | 8 of 8 | 50% | 0 |
 
-See [docs/scoring.md](docs/scoring.md) for what each column means and why the two trivial baselines both land at 50 percent.
+naive-patterns is not an independent measure. Its pattern categories were chosen by this project, and some overlap with commands that appear in the shipped incidents, so its score here is not a bar for other guards to clear. It is a sanity floor that shows the scoring machinery works, nothing more.
+
+Four of the six incident cases use reconstructed action text, meaning the exact command was not published and this project wrote a plausible stand in. A guard that misses a reconstructed case may be reacting to how that text was written rather than to the real incident. See [docs/scoring.md](docs/scoring.md) for what each column means, why the two trivial baselines both land at 50 percent, and more on what reconstructed text does and does not tell you.
 
 ## Limits of this project, honestly
 
