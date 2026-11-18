@@ -109,7 +109,7 @@ class TestResultsFile:
         guard = results["guards"][0]
         assert guard["spec"] == "builtin:block-all"
         row = guard["rows"][0]
-        for key in ("case_id", "kind", "expected", "decision", "correct", "latency_ms", "error", "reason"):
+        for key in ("case_id", "kind", "expected", "decision", "correct", "latency_ms", "error", "reason", "scorable", "reconstructed"):
             assert key in row
 
     def test_write_results_file_is_valid_json(self, tmp_path):

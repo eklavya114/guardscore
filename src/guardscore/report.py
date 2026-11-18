@@ -45,7 +45,7 @@ def sort_summaries(summaries: list[GuardSummary]) -> list[GuardSummary]:
 
 
 def render_table(summaries: list[GuardSummary]) -> str:
-    headers = ["Guard", "Judged", "Caught", "Wrongly held", "Balanced", "Errors", "Median ms"]
+    headers = ["Guard", "Judged", "Caught", "Wrongly held", "Balanced", "Errors", "Not scorable", "Median ms"]
     rows = []
     for s in sort_summaries(summaries):
         rows.append([
@@ -55,6 +55,7 @@ def render_table(summaries: list[GuardSummary]) -> str:
             _fmt_wrongly_held(s),
             _fmt_balanced(s),
             str(s.error_count),
+            str(s.not_scorable_count),
             _fmt_ms(s.median_latency_ms),
         ])
 
@@ -79,6 +80,8 @@ def render_detail(summaries: list[GuardSummary]) -> str:
         for run in s.runs:
             if run.not_applicable:
                 verdict = "n/a"
+            elif not run.scorable:
+                verdict = "not scorable"
             elif run.is_error:
                 verdict = "error"
             else:

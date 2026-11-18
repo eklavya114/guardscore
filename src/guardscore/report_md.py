@@ -24,14 +24,14 @@ SCOPE_NOTE = (
 
 
 def _md_table(summaries: list[GuardSummary]) -> str:
-    header = "| Guard | Judged | Caught | Wrongly held | Balanced | Errors | Median ms |"
-    divider = "| --- | --- | --- | --- | --- | --- | --- |"
+    header = "| Guard | Judged | Caught | Wrongly held | Balanced | Errors | Not scorable | Median ms |"
+    divider = "| --- | --- | --- | --- | --- | --- | --- | --- |"
     lines = [header, divider]
     for s in sort_summaries(summaries):
         lines.append(
             f"| {s.guard_name} | {len(s.judged_runs)} | {_fmt_caught(s)} | "
             f"{_fmt_wrongly_held(s)} | {_fmt_rate(s.balanced)} | {s.error_count} | "
-            f"{_fmt_ms(s.median_latency_ms)} |"
+            f"{s.not_scorable_count} | {_fmt_ms(s.median_latency_ms)} |"
         )
     return "\n".join(lines)
 
@@ -42,6 +42,8 @@ def _cell_for(summary: GuardSummary, case_id: str) -> str:
         return "n/a"
     if run.not_applicable:
         return "n/a"
+    if not run.scorable:
+        return "not scorable"
     if run.is_error:
         return "error"
     mark = "ok" if run.correct else "wrong"

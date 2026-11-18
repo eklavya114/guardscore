@@ -38,7 +38,13 @@ def cmd_stats(cases_dir: Path) -> int:
     for c in cases:
         tag_counts.update(c.tags)
 
+    scorable_count = sum(1 for c in cases if c.scorable)
+    not_scorable_count = len(cases) - scorable_count
+
     print(f"Total cases: {len(cases)}")
+    print()
+    print(f"Scorable: {scorable_count}")
+    print(f"Not scorable: {not_scorable_count}")
     print()
     print("By kind:")
     for kind, count in sorted(kind_counts.items()):

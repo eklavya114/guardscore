@@ -55,6 +55,8 @@ class Case:
     action: Action
     source: Optional[Source] = None
     outcome: Optional[str] = None
+    scorable: bool = True
+    scorable_note: Optional[str] = None
     path: Optional[Path] = None
 
 
@@ -89,6 +91,8 @@ def _load_one(path: Path) -> Case:
         action=action,
         source=source,
         outcome=data.get("outcome"),
+        scorable=data.get("scorable", True),
+        scorable_note=data.get("scorable_note"),
         path=path,
     )
 
@@ -194,6 +198,14 @@ def validate_cases(cases: list[Case]) -> list[str]:
                 errors.append(f"{prefix} everyday cases must include the tag 'everyday'")
             if case.outcome is not None:
                 errors.append(f"{prefix} everyday cases must not set 'outcome'")
+
+        if not isinstance(case.scorable, bool):
+            errors.append(f"{prefix} 'scorable' must be true or false")
+        elif not case.scorable and not case.scorable_note:
+            errors.append(f"{prefix} 'scorable_note' is required when 'scorable' is false")
+
+        if case.scorable and case.scorable_note:
+            errors.append(f"{prefix} 'scorable_note' is only allowed when 'scorable' is false")
 
         if looks_like_secret(case.action.text):
             errors.append(f"{prefix} 'action.text' appears to contain a real secret")

@@ -35,6 +35,8 @@ class CaseRun:
     error: Optional[str]
     reason: Optional[str]
     latency_ms: float
+    scorable: bool = True
+    reconstructed: Optional[bool] = None
 
 
 @dataclass
@@ -47,11 +49,15 @@ class GuardSummary:
 
     @property
     def judged_runs(self) -> list[CaseRun]:
-        return [r for r in self.runs if not r.not_applicable]
+        return [r for r in self.runs if not r.not_applicable and r.scorable]
 
     @property
     def not_applicable_count(self) -> int:
         return sum(1 for r in self.runs if r.not_applicable)
+
+    @property
+    def not_scorable_count(self) -> int:
+        return sum(1 for r in self.runs if r.scorable is False)
 
     @property
     def error_count(self) -> int:
@@ -156,6 +162,8 @@ def run_guard_over_cases(guard: Guard, guard_spec: str, cases: list[Case], timeo
                     error=None,
                     reason=None,
                     latency_ms=0.0,
+                    scorable=case.scorable,
+                    reconstructed=case.action.reconstructed,
                 )
             )
             continue
@@ -190,6 +198,8 @@ def run_guard_over_cases(guard: Guard, guard_spec: str, cases: list[Case], timeo
                 error=result.error,
                 reason=result.reason,
                 latency_ms=elapsed_ms,
+                scorable=case.scorable,
+                reconstructed=case.action.reconstructed,
             )
         )
 
