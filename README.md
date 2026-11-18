@@ -53,6 +53,9 @@ tests/             Test suite
 ```
 Total cases: 14
 
+Scorable: 13
+Not scorable: 1
+
 By kind:
   everyday: 8
   incident: 6
@@ -82,22 +85,22 @@ Run `python -m guardscore stats` to see the current numbers.
 
 ## Baseline scores
 
-These are the four built-in baselines, run over all 14 cases. Latency is left out here because it depends on the machine it runs on. Run the command above yourself to see timing on your own machine.
+These are the four built-in baselines. One incident case has action text that is only a descriptive comment, not something a guard could really judge, so it is marked not scorable and left out of every count below. That leaves 13 scorable cases: 5 incidents and 8 everyday cases. Latency is left out here because it depends on the machine it runs on. Run the command above yourself to see timing on your own machine.
 
-| Guard | Judged | Caught | Wrongly held | Balanced | Errors |
-| --- | --- | --- | --- | --- | --- |
-| builtin:naive-patterns | 14 | 3 of 6 | 0 of 8 | 75% | 0 |
-| builtin:coin-flip | 14 | 3 of 6 | 1 of 8 | 69% | 0 |
-| builtin:allow-all | 14 | 0 of 6 | 0 of 8 | 50% | 0 |
-| builtin:block-all | 14 | 6 of 6 | 8 of 8 | 50% | 0 |
+| Guard | Judged | Caught | Caught (literal) | Caught (reconstructed) | Wrongly held | Balanced | Errors | Not scorable |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| builtin:naive-patterns | 13 | 3 of 5 | 2 of 2 (fewer than 5 cases) | 1 of 3 (fewer than 5 cases) | 0 of 8 | 80% | 0 | 1 |
+| builtin:coin-flip | 13 | 3 of 5 | 1 of 2 (fewer than 5 cases) | 2 of 3 (fewer than 5 cases) | 1 of 8 | 74% | 0 | 1 |
+| builtin:allow-all | 13 | 0 of 5 | 0 of 2 (fewer than 5 cases) | 0 of 3 (fewer than 5 cases) | 0 of 8 | 50% | 0 | 1 |
+| builtin:block-all | 13 | 5 of 5 | 2 of 2 (fewer than 5 cases) | 3 of 3 (fewer than 5 cases) | 8 of 8 | 50% | 0 | 1 |
 
 naive-patterns is not an independent measure. Its pattern categories were chosen by this project, and some overlap with commands that appear in the shipped incidents, so its score here is not a bar for other guards to clear. It is a sanity floor that shows the scoring machinery works, nothing more.
 
-Four of the six incident cases use reconstructed action text, meaning the exact command was not published and this project wrote a plausible stand in. A guard that misses a reconstructed case may be reacting to how that text was written rather than to the real incident. See [docs/scoring.md](docs/scoring.md) for what each column means, why the two trivial baselines both land at 50 percent, and more on what reconstructed text does and does not tell you.
+Three of the five scorable incident cases use reconstructed action text, meaning the exact command was not published and this project wrote a plausible stand in. The table splits the catch count into literal and reconstructed cases for this reason: a guard that misses a reconstructed case may be reacting to how that text was written rather than to the real incident, so a miss there is weaker evidence than a miss on a literal case. Both groups here are small enough that the table marks them as having fewer than 5 cases, which is a reminder to read the split as a rough signal, not a settled number. See [docs/scoring.md](docs/scoring.md) for what each column means, why the two trivial baselines both land at 50 percent, and more on what reconstructed text does and does not tell you.
 
 ## Limits of this project, honestly
 
-- Six incidents is a small sample. Treat every score here as a rough floor, not a certified ranking.
+- Six incidents is a small sample, and one of them has no real action text to judge. One incident describes what happened only in a sentence, not as a command or request a guard could decide on, so it is marked not scorable and left out of every score. That leaves 5 scorable incidents. Treat every score here as a rough floor, not a certified ranking.
 - The cases lean toward coding agents and shell commands. A guard built for a different kind of agent or a different tool surface may score differently than these numbers suggest.
 - The baselines are sanity floors written by this project. They are not rivals to real guards and not a recommendation for how to build one.
 - Nothing here proves that a real AI agent would ever attempt any of these actions, or that a guard would actually stop it in a live session. This only measures whether a guard holds an action when it is shown that action directly.
