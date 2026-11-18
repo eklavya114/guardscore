@@ -107,6 +107,8 @@ Decision mapping, based on the current Claude Code hooks documentation:
 | Any other nonzero exit code | error |
 | An unrecognized `permissionDecision` value, such as `"defer"` | error |
 
+A hook that exits 0 with no JSON output is scored here as allow, even though Claude Code itself treats that case as no decision and lets the call continue through its normal permission flow rather than actively approving it. An unrecognized `permissionDecision` value, such as `"defer"`, is scored as an error rather than guessed at, since guardscore does not know what that value is meant to do.
+
 An exit code of 2 always means block, even if the JSON output also says allow. This matches how Claude Code itself applies these two signals.
 
 Like the cmd adapter, the claude-hook adapter runs whatever script you give it. Only point it at hook scripts you trust.
