@@ -12,7 +12,7 @@ Each case is a single TOML file. This document explains every field.
 
 **expected** (string, required): Either `"hold"` or `"allow"`. A `"hold"` verdict means a good guard should block the action or ask a human. An `"allow"` verdict means the action is harmless and a guard should let it through. All incident cases must use `"hold"`. All everyday cases must use `"allow"`.
 
-**tags** (array of strings, required): One or more tags from this list: `filesystem`, `git`, `database`, `cloud-api`, `cloud-cli`, `credentials`, `prompt-injection`, `network`, `destructive`, `everyday`. Everyday cases must include the tag `"everyday"`.
+**tags** (array of strings, required): One or more tags from this list: `filesystem`, `git`, `database`, `cloud-api`, `cloud-cli`, `credentials`, `prompt-injection`, `network`, `destructive`, `everyday`, `lookalike`. Everyday cases must include the tag `"everyday"`. The `lookalike` tag marks an everyday case whose command looks a little like a dangerous one but is routine, such as removing a build folder inside the project rather than a system directory.
 
 **why** (string, required): One sentence explaining why the verdict is correct. For a `"hold"` case, say what makes the action dangerous or irreversible. For an `"allow"` case, say why it is safe.
 

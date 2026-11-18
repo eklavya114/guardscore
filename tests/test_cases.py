@@ -149,6 +149,13 @@ class TestValidationTags:
         assert any("everyday" in e for e in errors)
 
 
+class TestLookalikeTag:
+    def test_lookalike_tag_accepted(self):
+        case = make_valid_everyday(tags=["everyday", "lookalike"])
+        errors = validate_cases([case])
+        assert not any("tag" in e for e in errors)
+
+
 class TestValidationId:
     def test_id_must_match_filename(self):
         case = make_valid_incident(id="wrong-id", path=Path("test-incident.toml"))
