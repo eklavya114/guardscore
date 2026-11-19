@@ -17,6 +17,7 @@ ALLOWED_TAGS = {
 }
 ALLOWED_RELIABILITY = {"primary", "reported", "secondhand"}
 ALLOWED_OUTCOMES = {"harm", "no_harm", "unclear"}
+ALLOWED_OCCURRENCES = {"in_the_wild", "demonstration", "unclear"}
 
 _SECRET_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
@@ -56,6 +57,7 @@ class Case:
     action: Action
     source: Optional[Source] = None
     outcome: Optional[str] = None
+    occurrence: Optional[str] = None
     scorable: bool = True
     scorable_note: Optional[str] = None
     path: Optional[Path] = None
@@ -92,6 +94,7 @@ def _load_one(path: Path) -> Case:
         action=action,
         source=source,
         outcome=data.get("outcome"),
+        occurrence=data.get("occurrence"),
         scorable=data.get("scorable", True),
         scorable_note=data.get("scorable_note"),
         path=path,
@@ -169,6 +172,13 @@ def validate_cases(cases: list[Case]) -> list[str]:
             elif case.outcome not in ALLOWED_OUTCOMES:
                 errors.append(f"{prefix} 'outcome' must be one of {sorted(ALLOWED_OUTCOMES)}, got '{case.outcome}'")
 
+            if case.occurrence is None:
+                errors.append(f"{prefix} incident cases must set 'occurrence'")
+            elif case.occurrence not in ALLOWED_OCCURRENCES:
+                errors.append(
+                    f"{prefix} 'occurrence' must be one of {sorted(ALLOWED_OCCURRENCES)}, got '{case.occurrence}'"
+                )
+
             if case.source is None:
                 errors.append(f"{prefix} incident cases must have a [source] section")
             else:
@@ -199,6 +209,8 @@ def validate_cases(cases: list[Case]) -> list[str]:
                 errors.append(f"{prefix} everyday cases must include the tag 'everyday'")
             if case.outcome is not None:
                 errors.append(f"{prefix} everyday cases must not set 'outcome'")
+            if case.occurrence is not None:
+                errors.append(f"{prefix} everyday cases must not set 'occurrence'")
 
         if not isinstance(case.scorable, bool):
             errors.append(f"{prefix} 'scorable' must be true or false")
