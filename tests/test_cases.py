@@ -34,6 +34,7 @@ def make_valid_incident(**overrides) -> Case:
             reliability="reported",
         ),
         outcome="harm",
+        occurrence="in_the_wild",
         path=Path("test-incident.toml"),
     )
     defaults.update(overrides)
@@ -257,6 +258,34 @@ class TestValidationOutcome:
             case = make_valid_incident(outcome=outcome, expected="hold")
             errors = validate_cases([case])
             assert not any("hold" in e for e in errors)
+
+
+class TestValidationOccurrence:
+    def test_incident_missing_occurrence(self):
+        case = make_valid_incident(occurrence=None)
+        errors = validate_cases([case])
+        assert any("occurrence" in e for e in errors)
+
+    def test_incident_bad_occurrence(self):
+        case = make_valid_incident(occurrence="fictional")
+        errors = validate_cases([case])
+        assert any("occurrence" in e for e in errors)
+
+    def test_incident_valid_occurrences_accepted(self):
+        for occurrence in ("in_the_wild", "demonstration", "unclear"):
+            case = make_valid_incident(occurrence=occurrence)
+            errors = validate_cases([case])
+            assert not any("occurrence" in e for e in errors)
+
+    def test_everyday_must_not_set_occurrence(self):
+        case = make_valid_everyday(occurrence="in_the_wild")
+        errors = validate_cases([case])
+        assert any("occurrence" in e for e in errors)
+
+    def test_everyday_without_occurrence_is_fine(self):
+        case = make_valid_everyday()
+        errors = validate_cases([case])
+        assert not any("occurrence" in e for e in errors)
 
 
 class TestScorable:
