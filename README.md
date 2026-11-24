@@ -95,20 +95,20 @@ These are the four built-in baselines. Two incident cases have action text that 
 
 | Guard | Judged | Caught | Caught (literal) | Caught (reconstructed) | Wrongly held | Balanced | Errors | Not scorable |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| builtin:naive-patterns | 29 | 4 of 11 | 2 of 4 (fewer than 5 cases) | 2 of 7 | 2 of 18 | 63% | 0 | 2 |
-| builtin:coin-flip | 29 | 6 of 11 | 3 of 4 (fewer than 5 cases) | 3 of 7 | 7 of 18 | 58% | 0 | 2 |
-| builtin:allow-all | 29 | 0 of 11 | 0 of 4 (fewer than 5 cases) | 0 of 7 | 0 of 18 | 50% | 0 | 2 |
-| builtin:block-all | 29 | 11 of 11 | 4 of 4 (fewer than 5 cases) | 7 of 7 | 18 of 18 | 50% | 0 | 2 |
+| builtin:naive-patterns | 29 | 4 of 11 | 2 of 3 (fewer than 5 cases) | 2 of 8 | 2 of 18 | 63% | 0 | 2 |
+| builtin:coin-flip | 29 | 6 of 11 | 2 of 3 (fewer than 5 cases) | 4 of 8 | 7 of 18 | 58% | 0 | 2 |
+| builtin:allow-all | 29 | 0 of 11 | 0 of 3 (fewer than 5 cases) | 0 of 8 | 0 of 18 | 50% | 0 | 2 |
+| builtin:block-all | 29 | 11 of 11 | 3 of 3 (fewer than 5 cases) | 8 of 8 | 18 of 18 | 50% | 0 | 2 |
 
 naive-patterns is not an independent measure. Its pattern categories were chosen by this project, and some overlap with commands that appear in the shipped incidents, so its score here is not a bar for other guards to clear. It is a sanity floor that shows the scoring machinery works, nothing more.
 
 As cases were added during this phase, the naive-patterns baseline moved from 80% to 63% balanced, with no change at all to its patterns. The regex rules have not been touched since the commit that first added them. A small, hand-picked case set can swing a lot just from adding a few new cases, which is itself a reason to read any single balanced score here as a rough signal rather than a fixed fact about a guard.
 
-7 of the 11 scorable incident cases use reconstructed action text, meaning the exact command was not published and this project wrote a plausible stand in. The table splits the catch count into literal and reconstructed cases for this reason: a guard that misses a reconstructed case may be reacting to how that text was written rather than to the real incident, so a miss there is weaker evidence than a miss on a literal case. Both groups here are small enough that the table marks them as having fewer than 5 cases, which is a reminder to read the split as a rough signal, not a settled number. See [docs/scoring.md](docs/scoring.md) for what each column means, why the two trivial baselines both land at 50 percent, and more on what reconstructed text does and does not tell you.
+8 of the 11 scorable incident cases use reconstructed action text, meaning the exact command was not published and this project wrote a plausible stand in. The table splits the catch count into literal and reconstructed cases for this reason: a guard that misses a reconstructed case may be reacting to how that text was written rather than to the real incident, so a miss there is weaker evidence than a miss on a literal case. Both groups here are small enough that the table marks them as having fewer than 5 cases, which is a reminder to read the split as a rough signal, not a settled number. See [docs/scoring.md](docs/scoring.md) for what each column means, why the two trivial baselines both land at 50 percent, and more on what reconstructed text does and does not tell you.
 
 ## Limits of this project, honestly
 
-- 13 incidents is a small sample, and 2 of them have action text that only looks safe because the real harm came from hidden state, not from the command itself, so they are marked not scorable and left out of every score. That leaves 11 scorable incidents, of which 4 use the literal command from a source and 7 use a reconstructed stand in. Treat every score here as a rough floor, not a certified ranking.
+- 13 incidents is a small sample, and 2 of them have action text that only looks safe because the real harm came from hidden state, not from the command itself, so they are marked not scorable and left out of every score. That leaves 11 scorable incidents, of which 3 use the literal command from a source and 8 use a reconstructed stand in. Treat every score here as a rough floor, not a certified ranking.
 - Of the 13 incidents, 11 are marked as having happened to a real user or in a real release, and 2 are marked as a researcher's or vendor's own demonstration rather than a real-world event. See the `occurrence` field in [docs/case-format.md](docs/case-format.md) for what each label means.
 - The cases lean toward coding agents and shell commands. A guard built for a different kind of agent or a different tool surface may score differently than these numbers suggest.
 - The baselines are sanity floors written by this project. They are not rivals to real guards and not a recommendation for how to build one.
